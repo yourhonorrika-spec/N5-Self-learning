@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sakura SRS - Japanese Learning App</title>
+
+  <!-- Google Fonts for Japanese Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -12,6 +17,9 @@
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            jp: ['"Noto Sans JP"', '"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', '"Meiryo"', 'sans-serif'],
+          },
           colors: {
             sakura: {
               50: '#fff5f7',
@@ -33,6 +41,11 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .font-jp {
+      font-family: 'Noto Sans JP', 'Hiragino Sans', 'Meiryo', sans-serif;
+    }
+  </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen transition-colors duration-300 font-sans">
 
@@ -53,7 +66,6 @@
 
       <!-- Streak & Date Navigation Tools -->
       <div class="flex flex-wrap items-center gap-3">
-        <!-- Daily Streak Counter -->
         <div class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-600 dark:text-amber-400 font-bold text-xs shadow-sm">
           <i data-lucide="flame" class="w-4 h-4 text-amber-500 fill-amber-500 animate-pulse"></i>
           <span><span id="streak-count">1</span> Day Streak</span>
@@ -64,7 +76,6 @@
           </button>
         </div>
 
-        <!-- Navigation Tabs -->
         <nav class="flex items-center bg-slate-200/70 dark:bg-zinc-800/80 p-1 rounded-xl text-sm font-medium">
           <button id="tab-review" onclick="switchTab('review')" class="nav-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-sakura-600 dark:text-sakura-400 bg-white dark:bg-zinc-700 shadow-sm font-semibold">
             <i data-lucide="layers" class="w-4 h-4"></i> Review <span id="badge-due" class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-sakura-500 text-white font-semibold">0</span>
@@ -81,7 +92,6 @@
         </nav>
       </div>
 
-      <!-- Action Buttons -->
       <div class="flex items-center gap-2">
         <button onclick="openGeminiModal()" class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg shadow-sm transition-all">
           <i data-lucide="bot" class="w-4 h-4"></i> Ask Gemini
@@ -96,7 +106,6 @@
       </div>
     </header>
 
-    <!-- Global Date Display Banner (Togglable) -->
     <div id="demo-banner" class="hidden my-3 px-4 py-2 bg-sakura-50 dark:bg-zinc-900 border border-sakura-200 dark:border-zinc-800 rounded-xl text-xs text-sakura-700 dark:text-sakura-300 flex justify-between items-center shadow-sm">
       <div class="flex items-center gap-2">
         <i data-lucide="calendar" class="w-4 h-4 text-sakura-500"></i>
@@ -106,9 +115,7 @@
       <button onclick="toggleDateTimeDisplay()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
 
-    <!-- Content Views -->
     <main class="flex-1 py-6 flex flex-col">
-
       <!-- VIEW 1: SRS REVIEW VIEW -->
       <section id="view-review" class="view-panel flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full">
         <div class="w-full flex justify-between items-center mb-4 text-xs font-medium text-slate-500 dark:text-zinc-400">
@@ -116,11 +123,9 @@
           <span id="review-progress">Card 0 of 0</span>
         </div>
 
-        <!-- Flashcard Container -->
         <div id="flashcard-container" class="w-full h-80 relative cursor-pointer group" onclick="flipCard()">
           <div class="w-full h-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl overflow-hidden relative flex flex-col justify-between p-6">
             
-            <!-- FRONT SIDE -->
             <div id="card-face-front" class="absolute inset-0 p-6 flex flex-col justify-between items-center text-center bg-white dark:bg-zinc-900 z-10">
               <div class="w-full flex justify-between items-center text-xs text-slate-400">
                 <span id="card-source-front" class="font-mono">Group Tag</span>
@@ -130,14 +135,13 @@
               </div>
 
               <div class="my-auto space-y-2">
-                <div id="card-kanji-front" class="text-6xl font-bold tracking-wider text-slate-900 dark:text-white">要る</div>
-                <div id="card-reading-front" class="text-xl text-sakura-500 font-medium">いる (iru)</div>
+                <div id="card-kanji-front" class="font-jp text-6xl font-bold tracking-wider text-slate-900 dark:text-white">曲がります</div>
+                <div id="card-reading-front" class="font-jp text-xl text-sakura-500 font-medium">まがります (magarimasu)</div>
               </div>
 
               <div class="text-xs text-slate-400 dark:text-zinc-500">Tap card to flip back</div>
             </div>
 
-            <!-- BACK SIDE -->
             <div id="card-face-back" class="absolute inset-0 p-6 flex flex-col justify-between items-center text-center border-t-4 border-sakura-500 bg-white dark:bg-zinc-900 opacity-0 pointer-events-none z-20">
               <div class="w-full flex justify-between items-center text-xs text-slate-400">
                 <span id="card-source-back" class="font-mono">Group Tag</span>
@@ -147,11 +151,11 @@
               </div>
 
               <div class="my-auto space-y-3 w-full">
-                <div id="card-kanji-back" class="text-3xl font-bold text-slate-900 dark:text-white">要る</div>
-                <div id="card-meaning-back" class="text-xl font-semibold text-sakura-600 dark:text-sakura-400">to need / require</div>
+                <div id="card-kanji-back" class="font-jp text-3xl font-bold text-slate-900 dark:text-white">曲がります</div>
+                <div id="card-meaning-back" class="text-xl font-semibold text-sakura-600 dark:text-sakura-400">to turn</div>
                 
                 <div id="card-details-box" class="p-3 bg-slate-50 dark:bg-zinc-800/60 rounded-xl text-xs text-slate-600 dark:text-zinc-300 text-left space-y-1 w-full border border-slate-100 dark:border-zinc-800">
-                  <p><strong>Example:</strong> <span id="card-example">ビザが要ります。(Need a visa.)</span></p>
+                  <p><strong>Example:</strong> <span id="card-example" class="font-jp text-slate-800 dark:text-zinc-200">右へ曲がります。(Turn to the right.)</span></p>
                   <p><strong>Grammar/Kanji Note:</strong> <span id="card-notes">Group 1 verb (u-verb)</span></p>
                 </div>
               </div>
@@ -162,7 +166,6 @@
           </div>
         </div>
 
-        <!-- SRS Action Buttons -->
         <div id="srs-controls" class="w-full mt-6 grid grid-cols-4 gap-2 transition-opacity opacity-50 pointer-events-none">
           <button onclick="gradeCard(1)" class="flex flex-col items-center p-2.5 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/40 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-900/50 transition-colors">
             <span class="text-sm font-semibold">Again</span>
@@ -182,7 +185,6 @@
           </button>
         </div>
 
-        <!-- Finished State Container -->
         <div id="review-empty-state" class="hidden w-full p-8 text-center bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
           <div class="w-16 h-16 bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
             <i data-lucide="check-circle" class="w-8 h-8"></i>
@@ -209,7 +211,7 @@
 
           <div class="text-center space-y-2 py-4">
             <span id="quiz-tag" class="text-xs px-2 py-1 bg-slate-100 dark:bg-zinc-800 rounded text-slate-500">Vocabulary</span>
-            <div id="quiz-prompt" class="text-4xl font-bold text-slate-900 dark:text-white">調べます</div>
+            <div id="quiz-prompt" class="font-jp text-4xl font-bold text-slate-900 dark:text-white">曲がります</div>
             <p id="quiz-subtext" class="text-sm text-slate-400">Choose the correct English meaning</p>
           </div>
 
@@ -242,7 +244,7 @@
         <div class="flex flex-wrap gap-3 justify-between items-center">
           <div class="relative flex-1 min-w-[200px]">
             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-            <input id="deck-search" type="text" oninput="renderDeckTable()" placeholder="Search kanji, reading, meaning..." class="w-full pl-9 pr-4 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sakura-400">
+            <input id="deck-search" type="text" oninput="renderDeckTable()" placeholder="Search kanji, reading, meaning..." class="w-full pl-9 pr-4 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sakura-400 font-jp">
           </div>
 
           <div class="flex gap-2">
@@ -332,7 +334,6 @@
           </div>
         </div>
       </section>
-
     </main>
   </div>
 
@@ -344,13 +345,13 @@
         <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <form id="form-add-item" onsubmit="handleManualAdd(event)" class="space-y-3">
+      <form id="form-add-item" onsubmit="handleManualAdd(event)" class="space-y-3 relative">
         
         <!-- Kanji Field -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Kanji / Expression *</label>
+        <div class="relative">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Kanji / Katakana</label>
           <div class="relative flex items-center">
-            <input type="text" id="add-kanji" required placeholder="Type Romaji (e.g. sanbyaku)..." oninput="handleImeInput(this, 'add-kanji')" onfocus="activeInputEl = this" class="w-full pr-10 px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
+            <input type="text" id="add-kanji" required placeholder="Type Romaji (e.g. magarimasu)..." oninput="handleImeInput(this, 'add-kanji')" onfocus="activeInputEl = this" class="w-full pr-10 px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none font-jp">
             <button type="button" onclick="toggleKeyboardPopover('add-kanji')" class="absolute right-2 p-1.5 text-slate-400 hover:text-sakura-500 transition-colors" title="Toggle On-Screen Keyboard">
               <i data-lucide="keyboard" class="w-4 h-4"></i>
             </button>
@@ -358,23 +359,23 @@
         </div>
 
         <!-- Kana Reading Field -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Kana / Reading *</label>
+        <div class="relative">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Furigana </label>
           <div class="relative flex items-center">
-            <input type="text" id="add-reading" required placeholder="Type Romaji (e.g. sanbyaku)..." oninput="handleImeInput(this, 'add-reading')" onfocus="activeInputEl = this" class="w-full pr-10 px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
+            <input type="text" id="add-reading" required placeholder="Type Romaji (e.g. magarimasu)..." oninput="handleImeInput(this, 'add-reading')" onfocus="activeInputEl = this" class="w-full pr-10 px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none font-jp">
             <button type="button" onclick="toggleKeyboardPopover('add-reading')" class="absolute right-2 p-1.5 text-slate-400 hover:text-sakura-500 transition-colors" title="Toggle On-Screen Keyboard">
               <i data-lucide="keyboard" class="w-4 h-4"></i>
             </button>
           </div>
         </div>
 
-        <!-- Kanji Candidates Box -->
-        <div id="kanji-candidates-popup" class="hidden p-2 bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 rounded-xl shadow-lg text-xs space-y-1">
+        <!-- Shared Dynamic Kanji Candidates Box (Attached cleanly to container) -->
+        <div id="kanji-candidates-popup" class="hidden z-40 w-full p-2 bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 rounded-xl shadow-xl text-xs space-y-1 my-2">
           <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex justify-between">
             <span>Kanji Candidates</span>
             <span class="text-sakura-500 font-normal">Click candidate to select</span>
           </div>
-          <div id="kanji-candidate-list" class="max-h-32 overflow-y-auto divide-y divide-slate-200 dark:divide-zinc-700"></div>
+          <div id="kanji-candidate-list" class="max-h-36 overflow-y-auto divide-y divide-slate-100 dark:divide-zinc-700 font-jp"></div>
         </div>
 
         <!-- Touch Keyboard -->
@@ -387,8 +388,8 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">English Meaning *</label>
-          <input type="text" id="add-meaning" required placeholder="e.g. three hundred" class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">English Meaning </label>
+          <input type="text" id="add-meaning" required placeholder="e.g. to turn" class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -409,7 +410,12 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Example Sentence / Note</label>
-          <input type="text" id="add-example" placeholder="e.g. 三百円です。" onfocus="activeInputEl = this" class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
+          <div class="relative flex items-center">
+            <input type="text" id="add-example" placeholder="Type Romaji (e.g. migihemagarimasu)..." oninput="handleImeInput(this, 'add-example')" onfocus="activeInputEl = this" class="w-full pr-10 px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none font-jp">
+            <button type="button" onclick="toggleKeyboardPopover('add-example')" class="absolute right-2 p-1.5 text-slate-400 hover:text-sakura-500 transition-colors" title="Toggle On-Screen Keyboard">
+              <i data-lucide="keyboard" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
 
         <div class="pt-2 flex justify-end gap-2">
@@ -433,13 +439,13 @@
 
       <div class="space-y-3">
         <p class="text-xs text-slate-500">Ask any Japanese grammar, kanji stroke order, or translation question:</p>
-        <textarea id="gemini-prompt-input" rows="3" placeholder="e.g. Explain the difference between に and で particles..." class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"></textarea>
+        <textarea id="gemini-prompt-input" rows="3" placeholder="e.g. Explain the difference between に and で particles..." class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none font-jp"></textarea>
         
         <button onclick="askGeminiQuery()" class="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm">
           Submit Question
         </button>
 
-        <div id="gemini-response-box" class="hidden p-3 bg-slate-50 dark:bg-zinc-800/80 rounded-xl text-xs text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 space-y-2 max-h-60 overflow-y-auto"></div>
+        <div id="gemini-response-box" class="hidden p-3 bg-slate-50 dark:bg-zinc-800/80 rounded-xl text-xs text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 space-y-2 max-h-60 overflow-y-auto font-jp"></div>
       </div>
     </div>
   </div>
@@ -447,6 +453,17 @@
   <!-- SCRIPT LOGIC -->
   <script>
     const STARTER_DECK = [
+      {
+        id: "mnn23_1",
+        kanji: "曲がります",
+        reading: "まがります (magarimasu)",
+        meaning: "to turn",
+        category: "Minna no Nihongo L23",
+        type: "vocab",
+        example: "右へ曲がります。(Turn to the right.)",
+        notes: "Group 1 verb (u-verb). Takes へ or に particle for direction.",
+        srs: { interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString() }
+      },
       {
         id: "mnn20_1",
         kanji: "要る",
@@ -478,7 +495,7 @@
     ];
 
     let deck = [];
-    let customGroups = ["Minna no Nihongo L20", "Nihongo Challenge Kanji", "Custom Deck"];
+    let customGroups = ["Minna no Nihongo L23", "Minna no Nihongo L20", "Nihongo Challenge Kanji", "Custom Deck"];
     let dueQueue = [];
     let currentCardIndex = 0;
     let isFlipped = false;
@@ -500,7 +517,6 @@
       activeInputEl = document.getElementById('add-kanji');
     });
 
-    // DYNAMIC & PERSISTENT DAILY STREAK ENGINE
     function initStreakTracking() {
       const today = new Date().toISOString().split('T')[0];
       const lastVisit = localStorage.getItem('sakura_last_visit_date');
@@ -559,7 +575,6 @@
       updateStats();
     }
 
-    // ACCURATE ROMAJI TO KANA IME CONVERSION
     function convertRomajiToKana(str) {
       let val = str.toLowerCase();
       
@@ -607,20 +622,24 @@
     function handleImeInput(inputEl, fieldId) {
       const converted = convertRomajiToKana(inputEl.value);
       inputEl.value = converted;
-
-      if (fieldId === 'add-kanji') {
-        fetchGoogleImeKanji(converted);
-      }
+      fetchGoogleImeKanji(converted, fieldId, inputEl);
     }
 
-    // MULTI-WORD & COMPOUND KANJI SUITE FROM GOOGLE IME API
-    function fetchGoogleImeKanji(kanaText) {
+    function fetchGoogleImeKanji(kanaText, targetFieldId = 'add-kanji', inputEl = null) {
       const popup = document.getElementById('kanji-candidates-popup');
       const list = document.getElementById('kanji-candidate-list');
 
       if (!kanaText || kanaText.trim() === '') {
         popup.classList.add('hidden');
         return;
+      }
+
+      // Instead of overlapping, we place the candidate box right below whichever input field triggered it
+      if (inputEl) {
+        const fieldContainer = inputEl.closest('.relative') || inputEl.parentElement;
+        if (fieldContainer) {
+          fieldContainer.appendChild(popup);
+        }
       }
 
       const scriptId = 'google_ime_script';
@@ -637,7 +656,6 @@
           if (segmentLists.length === 1) {
             combinedCandidates = segmentLists[0];
           } else if (segmentLists.length > 1) {
-            // Cartesion combination for multi-segmented inputs like "さん" + "びゃく"
             let combos = segmentLists[0];
             for (let i = 1; i < segmentLists.length; i++) {
               let nextCombos = [];
@@ -654,18 +672,21 @@
 
         let candidates = Array.from(new Set([kanaText, ...combinedCandidates]));
 
-        candidates.forEach((candidate, idx) => {
+        candidates.forEach((candidate) => {
           const row = document.createElement('div');
-          row.className = 'px-3 py-1.5 hover:bg-sakura-50 dark:hover:bg-zinc-700 cursor-pointer flex justify-between items-center text-slate-800 dark:text-zinc-100 font-medium';
+          row.className = 'px-3 py-1.5 hover:bg-sakura-50 dark:hover:bg-zinc-700 cursor-pointer flex justify-between items-center text-slate-800 dark:text-zinc-100 font-medium font-jp';
           row.innerHTML = `
             <span class="text-sm font-bold">${candidate}</span>
             <span class="text-[10px] text-slate-400 font-mono">${candidate === kanaText ? 'Kana' : 'Kanji Match'}</span>
           `;
           row.onclick = () => {
-            document.getElementById('add-kanji').value = candidate;
+            const targetEl = document.getElementById(targetFieldId);
+            if (targetEl) targetEl.value = candidate;
             popup.classList.add('hidden');
-            const readingEl = document.getElementById('add-reading');
-            if (!readingEl.value) readingEl.value = kanaText;
+            if (targetFieldId === 'add-kanji') {
+              const readingEl = document.getElementById('add-reading');
+              if (!readingEl.value) readingEl.value = kanaText;
+            }
           };
           list.appendChild(row);
         });
@@ -679,7 +700,6 @@
       document.body.appendChild(script);
     }
 
-    // ON-SCREEN KEYBOARD
     function renderQwertyKeyboard() {
       const grid = document.getElementById('qwerty-key-grid');
       grid.innerHTML = '';
@@ -726,7 +746,6 @@
       document.getElementById('ms-ime-keyboard').classList.add('hidden');
     }
 
-    // GEMINI ASSISTANT
     function openGeminiModal() { document.getElementById('modal-gemini').classList.remove('hidden'); }
     function closeGeminiModal() { document.getElementById('modal-gemini').classList.add('hidden'); }
 
@@ -743,7 +762,6 @@
       }, 1000);
     }
 
-    // GROUP MANAGEMENT
     function populateGroupSelects() {
       const filterSelect = document.getElementById('deck-filter-cat');
       const addSelect = document.getElementById('add-source');
@@ -814,7 +832,6 @@
       }
     }
 
-    // SRS ENGINE
     function prepareDueQueue() {
       const now = new Date();
       dueQueue = deck.filter(item => new Date(item.srs.dueDate) <= now);
@@ -979,7 +996,7 @@
       options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'w-full p-3.5 text-left border border-slate-200 dark:border-zinc-800 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-sm font-medium text-slate-800 dark:text-zinc-200 flex flex-col justify-center';
-        btn.innerHTML = `<span>${opt.meaning}</span><span class="text-xs text-slate-400 font-normal">${opt.reading}</span>`;
+        btn.innerHTML = `<span>${opt.meaning}</span><span class="text-xs text-slate-400 font-normal font-jp">${opt.reading}</span>`;
         btn.onclick = () => handleQuizAnswer(opt.id === quizCurrentItem.id, btn);
         optionsGrid.appendChild(btn);
       });
@@ -1025,8 +1042,8 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition-colors';
         tr.innerHTML = `
-          <td class="p-3.5 font-bold text-slate-900 dark:text-white">${item.kanji}</td>
-          <td class="p-3.5 text-sakura-600 dark:text-sakura-400 font-medium">${item.reading}</td>
+          <td class="p-3.5 font-bold text-slate-900 dark:text-white font-jp">${item.kanji}</td>
+          <td class="p-3.5 text-sakura-600 dark:text-sakura-400 font-medium font-jp">${item.reading}</td>
           <td class="p-3.5 text-slate-700 dark:text-zinc-300">${item.meaning}</td>
           <td class="p-3.5 text-xs text-slate-500 font-mono">${item.category}</td>
           <td class="p-3.5"><span class="px-2 py-0.5 rounded text-xs bg-slate-100 dark:bg-zinc-800">${item.srs.interval} days</span></td>
