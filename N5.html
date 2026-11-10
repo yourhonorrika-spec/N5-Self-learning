@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sakura SRS - Japanese Learning App</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sakura: {
+              50: '#fff5f7',
+              100: '#ffe6ec',
+              200: '#fcc2d0',
+              300: '#f793aa',
+              400: '#f05d80',
+              500: '#e63963',
+              600: '#d11f4d',
+              700: '#b0133b',
+              800: '#911333',
+              900: '#7a142e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen transition-colors duration-300 font-sans">
+
+  <!-- Main Container -->
+  <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-zinc-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sakura-500 to-pink-400 flex items-center justify-center text-white shadow-md">
+          <i data-lucide="flower-2" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-sakura-600 to-pink-500 bg-clip-text text-transparent">Sakura SRS</h1>
+          <p class="text-xs text-slate-500 dark:text-zinc-400">Custom Decks & Japanese IME</p>
+        </div>
+      </div>
+
+      <!-- Streak & Date Navigation Tools -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Daily Streak Counter -->
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-600 dark:text-amber-400 font-bold text-xs shadow-sm">
+          <i data-lucide="flame" class="w-4 h-4 text-amber-500 fill-amber-500 animate-pulse"></i>
+          <span><span id="streak-count">1</span> Day Streak</span>
+          
+          <button type="button" onclick="toggleDateTimeDisplay()" class="ml-1 pl-2 border-l border-amber-200 dark:border-amber-800 text-slate-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-300 flex items-center gap-1 transition-colors" title="Toggle Date & Time Display">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            <span id="date-time-btn-label">Date & Time</span>
+          </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center bg-slate-200/70 dark:bg-zinc-800/80 p-1 rounded-xl text-sm font-medium">
+          <button id="tab-review" onclick="switchTab('review')" class="nav-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-sakura-600 dark:text-sakura-400 bg-white dark:bg-zinc-700 shadow-sm font-semibold">
+            <i data-lucide="layers" class="w-4 h-4"></i> Review <span id="badge-due" class="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-sakura-500 text-white font-semibold">0</span>
+          </button>
+          <button id="tab-quiz" onclick="switchTab('quiz')" class="nav-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Quiz
+          </button>
+          <button id="tab-deck" onclick="switchTab('deck')" class="nav-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
+            <i data-lucide="book-open" class="w-4 h-4"></i> Deck & Groups
+          </button>
+          <button id="tab-stats" onclick="switchTab('stats')" class="nav-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white">
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Stats
+          </button>
+        </nav>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button onclick="openGeminiModal()" class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg shadow-sm transition-all">
+          <i data-lucide="bot" class="w-4 h-4"></i> Ask Gemini
+        </button>
+        <button onclick="openAddModal()" class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-sakura-500 hover:bg-sakura-600 text-white rounded-lg shadow-sm transition-colors">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Item
+        </button>
+        <button id="theme-toggle" onclick="toggleTheme()" class="p-2 text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-white rounded-lg border border-slate-200 dark:border-zinc-800 transition-colors">
+          <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Global Date Display Banner (Togglable) -->
+    <div id="demo-banner" class="hidden my-3 px-4 py-2 bg-sakura-50 dark:bg-zinc-900 border border-sakura-200 dark:border-zinc-800 rounded-xl text-xs text-sakura-700 dark:text-sakura-300 flex justify-between items-center shadow-sm">
+      <div class="flex items-center gap-2">
+        <i data-lucide="calendar" class="w-4 h-4 text-sakura-500"></i>
+        <span class="font-semibold">Current System Date & Time:</span>
+        <span id="demo" class="font-mono"></span>
+      </div>
+      <button onclick="toggleDateTimeDisplay()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+
+    <!-- Content Views -->
+    <main class="flex-1 py-6 flex flex-col">
+
+      <!-- VIEW 1: SRS REVIEW VIEW -->
+      <section id="view-review" class="view-panel flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full">
+        <div class="w-full flex justify-between items-center mb-4 text-xs font-medium text-slate-500 dark:text-zinc-400">
+          <span id="card-category-tag" class="px-2.5 py-1 rounded-md bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 font-medium">Group Name</span>
+          <span id="review-progress">Card 0 of 0</span>
+        </div>
+
+        <!-- Flashcard Container -->
+        <div id="flashcard-container" class="w-full h-80 relative cursor-pointer group" onclick="flipCard()">
+          <div class="w-full h-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl overflow-hidden relative flex flex-col justify-between p-6">
+            
+            <!-- FRONT SIDE -->
+            <div id="card-face-front" class="absolute inset-0 p-6 flex flex-col justify-between items-center text-center bg-white dark:bg-zinc-900 z-10">
+              <div class="w-full flex justify-between items-center text-xs text-slate-400">
+                <span id="card-source-front" class="font-mono">Group Tag</span>
+                <button onclick="event.stopPropagation(); playCurrentTTS()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 text-sakura-500 transition-colors" title="Listen Speech">
+                  <i data-lucide="volume-2" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <div class="my-auto space-y-2">
+                <div id="card-kanji-front" class="text-6xl font-bold tracking-wider text-slate-900 dark:text-white">要る</div>
+                <div id="card-reading-front" class="text-xl text-sakura-500 font-medium">いる (iru)</div>
+              </div>
+
+              <div class="text-xs text-slate-400 dark:text-zinc-500">Tap card to flip back</div>
+            </div>
+
+            <!-- BACK SIDE -->
+            <div id="card-face-back" class="absolute inset-0 p-6 flex flex-col justify-between items-center text-center border-t-4 border-sakura-500 bg-white dark:bg-zinc-900 opacity-0 pointer-events-none z-20">
+              <div class="w-full flex justify-between items-center text-xs text-slate-400">
+                <span id="card-source-back" class="font-mono">Group Tag</span>
+                <button onclick="event.stopPropagation(); playCurrentTTS()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 text-sakura-500 transition-colors" title="Listen Speech">
+                  <i data-lucide="volume-2" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <div class="my-auto space-y-3 w-full">
+                <div id="card-kanji-back" class="text-3xl font-bold text-slate-900 dark:text-white">要る</div>
+                <div id="card-meaning-back" class="text-xl font-semibold text-sakura-600 dark:text-sakura-400">to need / require</div>
+                
+                <div id="card-details-box" class="p-3 bg-slate-50 dark:bg-zinc-800/60 rounded-xl text-xs text-slate-600 dark:text-zinc-300 text-left space-y-1 w-full border border-slate-100 dark:border-zinc-800">
+                  <p><strong>Example:</strong> <span id="card-example">ビザが要ります。(Need a visa.)</span></p>
+                  <p><strong>Grammar/Kanji Note:</strong> <span id="card-notes">Group 1 verb (u-verb)</span></p>
+                </div>
+              </div>
+
+              <div class="text-xs text-slate-400 dark:text-zinc-500">Select recall level below</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SRS Action Buttons -->
+        <div id="srs-controls" class="w-full mt-6 grid grid-cols-4 gap-2 transition-opacity opacity-50 pointer-events-none">
+          <button onclick="gradeCard(1)" class="flex flex-col items-center p-2.5 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/40 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-900/50 transition-colors">
+            <span class="text-sm font-semibold">Again</span>
+            <span id="interval-again" class="text-[10px] opacity-75">&lt; 1 min</span>
+          </button>
+          <button onclick="gradeCard(2)" class="flex flex-col items-center p-2.5 bg-amber-50 hover:bg-amber-100 text-amber-600 dark:bg-amber-950/30 dark:hover:bg-amber-900/40 dark:text-amber-400 rounded-xl border border-amber-200 dark:border-amber-900/50 transition-colors">
+            <span class="text-sm font-semibold">Hard</span>
+            <span id="interval-hard" class="text-[10px] opacity-75">1 day</span>
+          </button>
+          <button onclick="gradeCard(3)" class="flex flex-col items-center p-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-xl border border-emerald-200 dark:border-emerald-900/50 transition-colors">
+            <span class="text-sm font-semibold">Good</span>
+            <span id="interval-good" class="text-[10px] opacity-75">3 days</span>
+          </button>
+          <button onclick="gradeCard(4)" class="flex flex-col items-center p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-950/30 dark:hover:bg-blue-900/40 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-900/50 transition-colors">
+            <span class="text-sm font-semibold">Easy</span>
+            <span id="interval-easy" class="text-[10px] opacity-75">6 days</span>
+          </button>
+        </div>
+
+        <!-- Finished State Container -->
+        <div id="review-empty-state" class="hidden w-full p-8 text-center bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm space-y-4">
+          <div class="w-16 h-16 bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+            <i data-lucide="check-circle" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-xl font-bold text-slate-800 dark:text-white">All caught up for now!</h3>
+          <p class="text-sm text-slate-500 dark:text-zinc-400">You've finished all due reviews for your active decks.</p>
+          <div class="flex justify-center gap-3 pt-2">
+            <button onclick="switchTab('quiz')" class="px-4 py-2 bg-sakura-500 hover:bg-sakura-600 text-white rounded-lg text-sm font-medium transition-colors">Practice Quiz</button>
+            <button onclick="resetAllSrsDue()" class="px-4 py-2 border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 rounded-lg text-sm font-medium transition-colors">Reset Reviews</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: QUIZ MODE -->
+      <section id="view-quiz" class="view-panel hidden flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full">
+        <div class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-6">
+          <div class="flex justify-between items-center border-b border-slate-100 dark:border-zinc-800 pb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-800 dark:text-white">Recap Quiz</h2>
+              <p class="text-xs text-slate-500 dark:text-zinc-400">Test your recall across all groups</p>
+            </div>
+            <span id="quiz-score" class="text-sm font-semibold text-sakura-500">Score: 0 / 0</span>
+          </div>
+
+          <div class="text-center space-y-2 py-4">
+            <span id="quiz-tag" class="text-xs px-2 py-1 bg-slate-100 dark:bg-zinc-800 rounded text-slate-500">Vocabulary</span>
+            <div id="quiz-prompt" class="text-4xl font-bold text-slate-900 dark:text-white">調べます</div>
+            <p id="quiz-subtext" class="text-sm text-slate-400">Choose the correct English meaning</p>
+          </div>
+
+          <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          <div id="quiz-feedback" class="text-center min-h-[24px] text-sm font-medium"></div>
+
+          <button id="btn-next-quiz" onclick="loadNextQuizQuestion()" class="hidden w-full py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-slate-900 font-semibold rounded-xl transition-colors">
+            Next Question
+          </button>
+        </div>
+      </section>
+
+      <!-- VIEW 3: DECK & GROUP MANAGER -->
+      <section id="view-deck" class="view-panel hidden flex-1 space-y-4">
+        <div class="p-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl flex flex-wrap gap-3 items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="folder-plus" class="w-5 h-5 text-sakura-500"></i>
+            <span class="text-sm font-bold text-slate-800 dark:text-white">Group Management</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="promptCreateNewGroup()" class="px-3 py-1.5 text-xs font-semibold bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 rounded-xl transition-colors">
+              + New Custom Group
+            </button>
+            <button onclick="resetCurrentGroupSRS()" class="px-3 py-1.5 text-xs font-semibold border border-amber-200 dark:border-amber-900/50 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-xl transition-colors">
+              Reset SRS for Active Group
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 justify-between items-center">
+          <div class="relative flex-1 min-w-[200px]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+            <input id="deck-search" type="text" oninput="renderDeckTable()" placeholder="Search kanji, reading, meaning..." class="w-full pl-9 pr-4 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sakura-400">
+          </div>
+
+          <div class="flex gap-2">
+            <select id="deck-filter-cat" onchange="renderDeckTable()" class="px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none">
+            </select>
+
+            <button onclick="exportDeckJSON()" class="p-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800" title="Export Backup JSON">
+              <i data-lucide="download" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 dark:bg-zinc-800/50 text-xs font-semibold text-slate-500 border-b border-slate-200 dark:border-zinc-800">
+                <tr>
+                  <th class="p-3.5">Japanese</th>
+                  <th class="p-3.5">Reading</th>
+                  <th class="p-3.5">Meaning</th>
+                  <th class="p-3.5">Group / Source</th>
+                  <th class="p-3.5">SRS Stage</th>
+                  <th class="p-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="deck-table-body" class="divide-y divide-slate-100 dark:divide-zinc-800">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: STATS DASHBOARD VIEW -->
+      <section id="view-stats" class="view-panel hidden flex-1 space-y-6 max-w-4xl mx-auto w-full">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 rounded-2xl shadow-sm">
+            <div class="text-xs font-medium text-slate-400">Total Deck Items</div>
+            <div id="stat-total-count" class="text-3xl font-bold text-slate-900 dark:text-white mt-1">0</div>
+            <div class="text-xs text-sakura-500 mt-2 flex items-center gap-1"><i data-lucide="book" class="w-3.5 h-3.5"></i> Custom & MNN Decks</div>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 rounded-2xl shadow-sm">
+            <div class="text-xs font-medium text-slate-400">Items Due Today</div>
+            <div id="stat-due-count" class="text-3xl font-bold text-amber-500 mt-1">0</div>
+            <div class="text-xs text-slate-400 mt-2">Ready for SRS recap</div>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 rounded-2xl shadow-sm">
+            <div class="text-xs font-medium text-slate-400">Mastered Items</div>
+            <div id="stat-mastered-count" class="text-3xl font-bold text-emerald-500 mt-1">0</div>
+            <div class="text-xs text-emerald-600 dark:text-emerald-400 mt-2">Interval &gt; 21 days</div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-800 dark:text-white">SRS Retention Stages</h3>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-medium mb-1">
+                <span>Learning / New (&lt; 3 days)</span>
+                <span id="stage-learning-cnt">0</span>
+              </div>
+              <div class="w-full h-2 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div id="bar-learning" class="h-full bg-amber-400" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-medium mb-1">
+                <span>Reviewing (3 - 21 days)</span>
+                <span id="stage-review-cnt">0</span>
+              </div>
+              <div class="w-full h-2 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div id="bar-review" class="h-full bg-sakura-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-medium mb-1">
+                <span>Mastered (&gt; 21 days)</span>
+                <span id="stage-mastered-cnt">0</span>
+              </div>
+              <div class="w-full h-2 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div id="bar-mastered" class="h-full bg-emerald-500" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL 1: ADD MANUAL ITEM -->
+  <div id="modal-add" class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 my-8 relative">
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-zinc-800 pb-3">
+        <h3 class="font-bold text-lg text-slate-900 dark:text-white">Add New Vocabulary / Kanji</h3>
+        <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="form-add-item" onsubmit="handleManualAdd(event)" class="space-y-3">
+        
+        <!-- Kanji Field -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Kanji / Expression *</label>
+          <div class="relative flex items-center">
+            <input type="text" id="add-kanji" required placeholder="Type Romaji (e.g. sanbyaku)..." oninput="handleImeInput(this, 'add-kanji')" onfocus="activeInputEl = this" class="w-full pr-10 px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
+            <button type="button" onclick="toggleKeyboardPopover('add-kanji')" class="absolute right-2 p-1.5 text-slate-400 hover:text-sakura-500 transition-colors" title="Toggle On-Screen Keyboard">
+              <i data-lucide="keyboard" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kana Reading Field -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Kana / Reading *</label>
+          <div class="relative flex items-center">
+            <input type="text" id="add-reading" required placeholder="Type Romaji (e.g. sanbyaku)..." oninput="handleImeInput(this, 'add-reading')" onfocus="activeInputEl = this" class="w-full pr-10 px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
+            <button type="button" onclick="toggleKeyboardPopover('add-reading')" class="absolute right-2 p-1.5 text-slate-400 hover:text-sakura-500 transition-colors" title="Toggle On-Screen Keyboard">
+              <i data-lucide="keyboard" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kanji Candidates Box -->
+        <div id="kanji-candidates-popup" class="hidden p-2 bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 rounded-xl shadow-lg text-xs space-y-1">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex justify-between">
+            <span>Kanji Candidates</span>
+            <span class="text-sakura-500 font-normal">Click candidate to select</span>
+          </div>
+          <div id="kanji-candidate-list" class="max-h-32 overflow-y-auto divide-y divide-slate-200 dark:divide-zinc-700"></div>
+        </div>
+
+        <!-- Touch Keyboard -->
+        <div id="ms-ime-keyboard" class="hidden p-3 bg-slate-100 dark:bg-zinc-800 rounded-xl space-y-2 border border-slate-300 dark:border-zinc-700 shadow-xl">
+          <div class="flex justify-between items-center text-xs font-medium text-slate-600 dark:text-zinc-300 border-b border-slate-200 dark:border-zinc-700 pb-1.5">
+            <span class="flex items-center gap-1 font-bold"><i data-lucide="keyboard" class="w-3.5 h-3.5 text-sakura-500"></i> Romaji Keyboard</span>
+            <button type="button" onclick="closeKeyboardPopover()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+          </div>
+          <div id="qwerty-key-grid" class="flex flex-col gap-1 text-center font-mono text-xs"></div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">English Meaning *</label>
+          <input type="text" id="add-meaning" required placeholder="e.g. three hundred" class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Group / Category</label>
+            <select id="add-source" onchange="handleGroupSelectChange(this)" class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none">
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Type</label>
+            <select id="add-type" class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none">
+              <option value="vocab">Vocabulary</option>
+              <option value="kanji">Kanji</option>
+              <option value="grammar">Grammar Pattern</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-zinc-400 mb-1">Example Sentence / Note</label>
+          <input type="text" id="add-example" placeholder="e.g. 三百円です。" onfocus="activeInputEl = this" class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-sakura-400 focus:outline-none">
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800">Cancel</button>
+          <button type="submit" class="px-4 py-2 text-xs font-medium bg-sakura-500 hover:bg-sakura-600 text-white rounded-xl shadow-sm">Save to Deck</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: ASK GEMINI AI ASSISTANT -->
+  <div id="modal-gemini" class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 my-8">
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-zinc-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="bot" class="w-5 h-5 text-purple-600"></i>
+          <h3 class="font-bold text-lg text-slate-900 dark:text-white">Ask Gemini Assistant</h3>
+        </div>
+        <button onclick="closeGeminiModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <p class="text-xs text-slate-500">Ask any Japanese grammar, kanji stroke order, or translation question:</p>
+        <textarea id="gemini-prompt-input" rows="3" placeholder="e.g. Explain the difference between に and で particles..." class="w-full px-3 py-2 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"></textarea>
+        
+        <button onclick="askGeminiQuery()" class="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+          Submit Question
+        </button>
+
+        <div id="gemini-response-box" class="hidden p-3 bg-slate-50 dark:bg-zinc-800/80 rounded-xl text-xs text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 space-y-2 max-h-60 overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    const STARTER_DECK = [
+      {
+        id: "mnn20_1",
+        kanji: "要る",
+        reading: "いる (iru)",
+        meaning: "to need, require",
+        category: "Minna no Nihongo L20",
+        type: "vocab",
+        example: "ビザが要ります (Need a visa)",
+        notes: "Group 1 verb (u-verb). Takes が particle.",
+        srs: { interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString() }
+      },
+      {
+        id: "mnn20_2",
+        kanji: "調べる",
+        reading: "しらべる (shiraberu)",
+        meaning: "to check, investigate, search",
+        category: "Minna no Nihongo L20",
+        type: "vocab",
+        example: "辞書で言葉を調べます (Look up a word in dictionary)",
+        notes: "Group 2 verb (ru-verb)",
+        srs: { interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString() }
+      }
+    ];
+
+    const QWERTY_ROWS = [
+      ['q','w','e','r','t','y','u','i','o','p'],
+      ['a','s','d','f','g','h','j','k','l'],
+      ['z','x','c','v','b','n','m','⌫']
+    ];
+
+    let deck = [];
+    let customGroups = ["Minna no Nihongo L20", "Nihongo Challenge Kanji", "Custom Deck"];
+    let dueQueue = [];
+    let currentCardIndex = 0;
+    let isFlipped = false;
+    let quizCurrentItem = null;
+    let quizScore = { correct: 0, total: 0 };
+    let activeInputEl = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadDeck();
+      initStreakTracking();
+      renderQwertyKeyboard();
+      populateGroupSelects();
+      prepareDueQueue();
+      renderCurrentCard();
+      renderDeckTable();
+      updateStats();
+
+      activeInputEl = document.getElementById('add-kanji');
+    });
+
+    // DYNAMIC & PERSISTENT DAILY STREAK ENGINE
+    function initStreakTracking() {
+      const today = new Date().toISOString().split('T')[0];
+      const lastVisit = localStorage.getItem('sakura_last_visit_date');
+      let streak = parseInt(localStorage.getItem('sakura_user_streak') || '1', 10);
+
+      if (lastVisit) {
+        const lastDate = new Date(lastVisit);
+        const currDate = new Date(today);
+        const diffDays = Math.floor((currDate - lastDate) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          streak += 1;
+          localStorage.setItem('sakura_user_streak', streak);
+        } else if (diffDays > 1) {
+          streak = 1;
+          localStorage.setItem('sakura_user_streak', streak);
+        }
+      }
+
+      localStorage.setItem('sakura_last_visit_date', today);
+      document.getElementById('streak-count').textContent = streak;
+    }
+
+    function toggleDateTimeDisplay() {
+      const banner = document.getElementById('demo-banner');
+      const label = document.getElementById('date-time-btn-label');
+      
+      if (banner.classList.contains('hidden')) {
+        banner.classList.remove('hidden');
+        document.getElementById('demo').textContent = new Date().toLocaleString();
+        label.textContent = "Hide Time";
+      } else {
+        banner.classList.add('hidden');
+        label.textContent = "Date & Time";
+      }
+    }
+
+    function loadDeck() {
+      const stored = localStorage.getItem('sakura_srs_deck_mnn20');
+      if (stored) {
+        try { 
+          deck = JSON.parse(stored);
+        } catch (e) { deck = [...STARTER_DECK]; }
+      } else {
+        deck = [...STARTER_DECK];
+        saveDeck();
+      }
+
+      deck.forEach(item => {
+        if (!customGroups.includes(item.category)) customGroups.push(item.category);
+      });
+    }
+
+    function saveDeck() {
+      localStorage.setItem('sakura_srs_deck_mnn20', JSON.stringify(deck));
+      updateStats();
+    }
+
+    // ACCURATE ROMAJI TO KANA IME CONVERSION
+    function convertRomajiToKana(str) {
+      let val = str.toLowerCase();
+      
+      const multi = {
+        'bya':'びゃ', 'byu':'びゅ', 'byo':'びょ',
+        'pya':'ぴゃ', 'pyu':'ぴゅ', 'pyo':'ぴょ',
+        'kya':'きゃ', 'kyu':'きゅ', 'kyo':'きょ',
+        'gya':'ぎゃ', 'gyu':'ぎゅ', 'gyo':'ぎょ',
+        'sha':'しゃ', 'shu':'しゅ', 'sho':'しょ', 'shuu':'しゅう',
+        'cha':'ちゃ', 'chu':'ちゅ', 'cho':'ちょ', 'chuu':'ちゅう',
+        'jya':'じゃ', 'jyu':'じゅ', 'jyo':'じょ', 'zya':'じゃ', 'zyu':'じゅ', 'zyo':'じょ',
+        'nya':'にゃ', 'nyu':'にゅ', 'nyo':'にょ',
+        'hya':'ひゃ', 'hyu':'ひゅ', 'hyo':'ひょ',
+        'mya':'みゃ', 'myu':'みゅ', 'myo':'みょ',
+        'rya':'りゃ', 'ryu':'りゅ', 'ryo':'りょ',
+        'tsu':'つ',
+        
+        'shi':'し', 'chi':'ち', 'ji':'じ', 'zi':'じ',
+        'zan':'ざん', 'za':'ざ', 'zi':'じ', 'zu':'ず', 'ze':'ぜ', 'zo':'ぞ',
+        'ba':'ば', 'bi':'び', 'bu':'ぶ', 'be':'べ', 'bo':'ぼ',
+        'pa':'ぱ', 'pi':'ぴ', 'pu':'ぷ', 'pe':'ぺ', 'po':'ぽ',
+        'ga':'が', 'gi':'ぎ', 'gu':'ぐ', 'ge':'げ', 'go':'ご',
+        'da':'だ', 'di':'ぢ', 'du':'づ', 'de':'で', 'do':'ど',
+        'ka':'か', 'ki':'き', 'ku':'く', 'ke':'け', 'ko':'こ',
+        'sa':'さ', 'su':'す', 'se':'せ', 'so':'そ',
+        'ta':'た', 'te':'て', 'to':'と',
+        'na':'な', 'ni':'に', 'nu':'ぬ', 'ne':'ね', 'no':'の', 'nn':'ん',
+        'ha':'は', 'hi':'ひ', 'fu':'ふ', 'he':'へ', 'ho':'ほ',
+        'ma':'ま', 'mi':'み', 'mu':'む', 'me':'め', 'mo':'も',
+        'ya':'や', 'yu':'ゆ', 'yo':'よ',
+        'ra':'ら', 'ri':'り', 'ru':'る', 're':'れ', 'ro':'ろ',
+        'wa':'わ', 'wo':'を',
+        
+        'a':'あ', 'i':'い', 'u':'う', 'e':'え', 'o':'お'
+      };
+
+      const keys = Object.keys(multi).sort((a,b) => b.length - a.length);
+      keys.forEach(k => {
+        val = val.split(k).join(multi[k]);
+      });
+
+      return val;
+    }
+
+    function handleImeInput(inputEl, fieldId) {
+      const converted = convertRomajiToKana(inputEl.value);
+      inputEl.value = converted;
+
+      if (fieldId === 'add-kanji') {
+        fetchGoogleImeKanji(converted);
+      }
+    }
+
+    // MULTI-WORD & COMPOUND KANJI SUITE FROM GOOGLE IME API
+    function fetchGoogleImeKanji(kanaText) {
+      const popup = document.getElementById('kanji-candidates-popup');
+      const list = document.getElementById('kanji-candidate-list');
+
+      if (!kanaText || kanaText.trim() === '') {
+        popup.classList.add('hidden');
+        return;
+      }
+
+      const scriptId = 'google_ime_script';
+      const oldScript = document.getElementById(scriptId);
+      if (oldScript) oldScript.remove();
+
+      window.googleImeCallback = function(data) {
+        list.innerHTML = '';
+        let combinedCandidates = [];
+
+        if (data && Array.isArray(data)) {
+          let segmentLists = data.map(item => (item && item[1]) ? item[1] : []);
+          
+          if (segmentLists.length === 1) {
+            combinedCandidates = segmentLists[0];
+          } else if (segmentLists.length > 1) {
+            // Cartesion combination for multi-segmented inputs like "さん" + "びゃく"
+            let combos = segmentLists[0];
+            for (let i = 1; i < segmentLists.length; i++) {
+              let nextCombos = [];
+              combos.forEach(head => {
+                segmentLists[i].forEach(tail => {
+                  nextCombos.push(head + tail);
+                });
+              });
+              combos = nextCombos;
+            }
+            combinedCandidates = combos;
+          }
+        }
+
+        let candidates = Array.from(new Set([kanaText, ...combinedCandidates]));
+
+        candidates.forEach((candidate, idx) => {
+          const row = document.createElement('div');
+          row.className = 'px-3 py-1.5 hover:bg-sakura-50 dark:hover:bg-zinc-700 cursor-pointer flex justify-between items-center text-slate-800 dark:text-zinc-100 font-medium';
+          row.innerHTML = `
+            <span class="text-sm font-bold">${candidate}</span>
+            <span class="text-[10px] text-slate-400 font-mono">${candidate === kanaText ? 'Kana' : 'Kanji Match'}</span>
+          `;
+          row.onclick = () => {
+            document.getElementById('add-kanji').value = candidate;
+            popup.classList.add('hidden');
+            const readingEl = document.getElementById('add-reading');
+            if (!readingEl.value) readingEl.value = kanaText;
+          };
+          list.appendChild(row);
+        });
+
+        popup.classList.remove('hidden');
+      };
+
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = `https://www.google.com/transliterate?langpair=ja-Hira|ja&text=${encodeURIComponent(kanaText)}&jsonp=googleImeCallback`;
+      document.body.appendChild(script);
+    }
+
+    // ON-SCREEN KEYBOARD
+    function renderQwertyKeyboard() {
+      const grid = document.getElementById('qwerty-key-grid');
+      grid.innerHTML = '';
+
+      QWERTY_ROWS.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'flex justify-center gap-1';
+        row.forEach(key => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'flex-1 py-2 bg-white hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-700 rounded text-slate-800 dark:text-zinc-100 transition-colors font-semibold text-xs border border-slate-200 dark:border-zinc-700 uppercase';
+          btn.textContent = key;
+          btn.onclick = (e) => {
+            e.preventDefault();
+            handleQwertyKeyPress(key);
+          };
+          rowDiv.appendChild(btn);
+        });
+        grid.appendChild(rowDiv);
+      });
+    }
+
+    function handleQwertyKeyPress(key) {
+      if (!activeInputEl) activeInputEl = document.getElementById('add-kanji');
+
+      if (key === '⌫') {
+        activeInputEl.value = activeInputEl.value.slice(0, -1);
+      } else {
+        activeInputEl.value += key;
+      }
+
+      handleImeInput(activeInputEl, activeInputEl.id);
+      activeInputEl.focus();
+    }
+
+    function toggleKeyboardPopover(inputId) {
+      const popover = document.getElementById('ms-ime-keyboard');
+      activeInputEl = document.getElementById(inputId);
+      popover.classList.toggle('hidden');
+      if (activeInputEl) activeInputEl.focus();
+    }
+
+    function closeKeyboardPopover() {
+      document.getElementById('ms-ime-keyboard').classList.add('hidden');
+    }
+
+    // GEMINI ASSISTANT
+    function openGeminiModal() { document.getElementById('modal-gemini').classList.remove('hidden'); }
+    function closeGeminiModal() { document.getElementById('modal-gemini').classList.add('hidden'); }
+
+    function askGeminiQuery() {
+      const input = document.getElementById('gemini-prompt-input').value.trim();
+      const resBox = document.getElementById('gemini-response-box');
+      if (!input) return;
+
+      resBox.classList.remove('hidden');
+      resBox.innerHTML = '<span class="text-purple-500 animate-pulse font-semibold">Gemini is thinking...</span>';
+
+      setTimeout(() => {
+        resBox.innerHTML = `<strong>Answer:</strong><br/>In Japanese, <strong>に</strong> is used for specific targets, time, or destinations (e.g., 学校に行く), while <strong>で</strong> indicates the location where an action takes place (e.g., 学校で勉強する).`;
+      }, 1000);
+    }
+
+    // GROUP MANAGEMENT
+    function populateGroupSelects() {
+      const filterSelect = document.getElementById('deck-filter-cat');
+      const addSelect = document.getElementById('add-source');
+
+      filterSelect.innerHTML = '<option value="all">All Groups</option>';
+      addSelect.innerHTML = '';
+
+      customGroups.forEach(grp => {
+        const opt = document.createElement('option');
+        opt.value = grp;
+        opt.textContent = grp;
+        filterSelect.appendChild(opt);
+
+        const opt2 = document.createElement('option');
+        opt2.value = grp;
+        opt2.textContent = grp;
+        addSelect.appendChild(opt2);
+      });
+
+      const createOpt = document.createElement('option');
+      createOpt.value = "__NEW_GROUP__";
+      createOpt.textContent = "+ Type Custom Group Name...";
+      addSelect.appendChild(createOpt);
+    }
+
+    function handleGroupSelectChange(selectEl) {
+      if (selectEl.value === '__NEW_GROUP__') {
+        const grpName = prompt('Enter your custom group name:');
+        if (grpName && grpName.trim()) {
+          const cleanName = grpName.trim();
+          if (!customGroups.includes(cleanName)) {
+            customGroups.push(cleanName);
+            populateGroupSelects();
+          }
+          selectEl.value = cleanName;
+        } else {
+          selectEl.value = customGroups[0];
+        }
+      }
+    }
+
+    function promptCreateNewGroup() {
+      const grpName = prompt('Enter custom group name:');
+      if (grpName && grpName.trim()) {
+        const cleanName = grpName.trim();
+        if (!customGroups.includes(cleanName)) {
+          customGroups.push(cleanName);
+          populateGroupSelects();
+          document.getElementById('deck-filter-cat').value = cleanName;
+          renderDeckTable();
+        }
+      }
+    }
+
+    function resetCurrentGroupSRS() {
+      const activeGroup = document.getElementById('deck-filter-cat').value;
+      if (confirm(`Reset SRS progress for all items in group "${activeGroup}"?`)) {
+        const now = new Date().toISOString();
+        deck.forEach(item => {
+          if (activeGroup === 'all' || item.category === activeGroup) {
+            item.srs = { interval: 1, repetition: 0, easeFactor: 2.5, dueDate: now };
+          }
+        });
+        saveDeck();
+        prepareDueQueue();
+        renderDeckTable();
+        alert('Group SRS progress reset successfully.');
+      }
+    }
+
+    // SRS ENGINE
+    function prepareDueQueue() {
+      const now = new Date();
+      dueQueue = deck.filter(item => new Date(item.srs.dueDate) <= now);
+      document.getElementById('badge-due').textContent = dueQueue.length;
+      document.getElementById('stat-due-count').textContent = dueQueue.length;
+    }
+
+    function gradeCard(grade) {
+      if (dueQueue.length === 0) return;
+
+      const item = dueQueue[currentCardIndex];
+      let { interval, repetition, easeFactor } = item.srs;
+
+      if (grade >= 2) {
+        if (repetition === 0) interval = 1;
+        else if (repetition === 1) interval = 3;
+        else interval = Math.round(interval * easeFactor);
+        repetition++;
+      } else {
+        repetition = 0;
+        interval = 1;
+      }
+
+      easeFactor = easeFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
+      if (easeFactor < 1.3) easeFactor = 1.3;
+
+      const nextDue = new Date();
+      nextDue.setDate(nextDue.getDate() + interval);
+
+      item.srs = {
+        interval,
+        repetition,
+        easeFactor: parseFloat(easeFactor.toFixed(2)),
+        dueDate: nextDue.toISOString()
+      };
+
+      saveDeck();
+      flipCard(false);
+
+      setTimeout(() => {
+        prepareDueQueue();
+        if (dueQueue.length > 0) {
+          if (currentCardIndex >= dueQueue.length) currentCardIndex = 0;
+          renderCurrentCard();
+        } else {
+          showEmptyState();
+        }
+      }, 300);
+    }
+
+    function renderCurrentCard() {
+      if (dueQueue.length === 0) {
+        showEmptyState();
+        return;
+      }
+
+      document.getElementById('review-empty-state').classList.add('hidden');
+      document.getElementById('flashcard-container').classList.remove('hidden');
+      document.getElementById('srs-controls').classList.remove('hidden');
+
+      const card = dueQueue[currentCardIndex];
+
+      document.getElementById('card-category-tag').textContent = card.category;
+      document.getElementById('card-source-front').textContent = card.type.toUpperCase();
+      document.getElementById('card-source-back').textContent = card.category;
+      document.getElementById('review-progress').textContent = `Card ${currentCardIndex + 1} of ${dueQueue.length}`;
+
+      document.getElementById('card-kanji-front').textContent = card.kanji;
+      document.getElementById('card-reading-front').textContent = card.reading;
+      document.getElementById('card-kanji-back').textContent = card.kanji;
+      document.getElementById('card-meaning-back').textContent = card.meaning;
+      document.getElementById('card-example').textContent = card.example || 'N/A';
+      document.getElementById('card-notes').textContent = card.notes || 'N/A';
+
+      const ef = card.srs.easeFactor;
+      document.getElementById('interval-again').textContent = '< 1 min';
+      document.getElementById('interval-hard').textContent = '1 day';
+      document.getElementById('interval-good').textContent = Math.round((card.srs.interval || 1) * ef) + ' days';
+      document.getElementById('interval-easy').textContent = Math.round((card.srs.interval || 1) * ef * 1.3) + ' days';
+    }
+
+    function flipCard(forceState) {
+      const front = document.getElementById('card-face-front');
+      const back = document.getElementById('card-face-back');
+      const controls = document.getElementById('srs-controls');
+
+      if (typeof forceState === 'boolean') {
+        isFlipped = forceState;
+      } else {
+        isFlipped = !isFlipped;
+      }
+
+      if (isFlipped) {
+        front.classList.add('opacity-0', 'pointer-events-none');
+        back.classList.remove('opacity-0', 'pointer-events-none');
+        controls.classList.remove('opacity-50', 'pointer-events-none');
+      } else {
+        front.classList.remove('opacity-0', 'pointer-events-none');
+        back.classList.add('opacity-0', 'pointer-events-none');
+        controls.classList.add('opacity-50', 'pointer-events-none');
+      }
+    }
+
+    function showEmptyState() {
+      document.getElementById('flashcard-container').classList.add('hidden');
+      document.getElementById('srs-controls').classList.add('hidden');
+      document.getElementById('review-empty-state').classList.remove('hidden');
+      document.getElementById('review-progress').textContent = '0 cards remaining';
+    }
+
+    function resetAllSrsDue() {
+      const now = new Date().toISOString();
+      deck.forEach(item => item.srs.dueDate = now);
+      saveDeck();
+      prepareDueQueue();
+      currentCardIndex = 0;
+      renderCurrentCard();
+    }
+
+    function playCurrentTTS() {
+      if (dueQueue.length === 0) return;
+      const card = dueQueue[currentCardIndex];
+      const textToSay = card.kanji || card.reading;
+      
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(textToSay);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 0.85;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function startQuizMode() {
+      quizScore = { correct: 0, total: 0 };
+      document.getElementById('quiz-score').textContent = `Score: 0 / 0`;
+      loadNextQuizQuestion();
+    }
+
+    function loadNextQuizQuestion() {
+      if (deck.length < 2) {
+        alert("Need at least 2 deck items to play quiz mode.");
+        return;
+      }
+
+      document.getElementById('quiz-feedback').textContent = '';
+      document.getElementById('btn-next-quiz').classList.add('hidden');
+
+      const randIdx = Math.floor(Math.random() * deck.length);
+      quizCurrentItem = deck[randIdx];
+
+      document.getElementById('quiz-prompt').textContent = quizCurrentItem.kanji;
+      document.getElementById('quiz-tag').textContent = quizCurrentItem.category;
+
+      const distractors = deck.filter(d => d.id !== quizCurrentItem.id);
+      shuffleArray(distractors);
+      const options = [quizCurrentItem, ...distractors.slice(0, 3)];
+      shuffleArray(options);
+
+      const optionsGrid = document.getElementById('quiz-options');
+      optionsGrid.innerHTML = '';
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full p-3.5 text-left border border-slate-200 dark:border-zinc-800 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-sm font-medium text-slate-800 dark:text-zinc-200 flex flex-col justify-center';
+        btn.innerHTML = `<span>${opt.meaning}</span><span class="text-xs text-slate-400 font-normal">${opt.reading}</span>`;
+        btn.onclick = () => handleQuizAnswer(opt.id === quizCurrentItem.id, btn);
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function handleQuizAnswer(isCorrect, element) {
+      const allBtns = document.getElementById('quiz-options').querySelectorAll('button');
+      allBtns.forEach(b => b.disabled = true);
+
+      quizScore.total++;
+      const feedback = document.getElementById('quiz-feedback');
+
+      if (isCorrect) {
+        quizScore.correct++;
+        element.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-700', 'dark:bg-emerald-950/40');
+        feedback.textContent = '✨ Correct answer!';
+        feedback.className = 'text-center min-h-[24px] text-sm font-semibold text-emerald-600 dark:text-emerald-400';
+      } else {
+        element.classList.add('bg-red-50', 'border-red-500', 'text-red-700', 'dark:bg-red-950/40');
+        feedback.textContent = `❌ Correct was: ${quizCurrentItem.meaning}`;
+        feedback.className = 'text-center min-h-[24px] text-sm font-semibold text-red-600 dark:text-red-400';
+      }
+
+      document.getElementById('quiz-score').textContent = `Score: ${quizScore.correct} / ${quizScore.total}`;
+      document.getElementById('btn-next-quiz').classList.remove('hidden');
+    }
+
+    function renderDeckTable() {
+      const search = document.getElementById('deck-search').value.toLowerCase();
+      const catFilter = document.getElementById('deck-filter-cat').value;
+      const tbody = document.getElementById('deck-table-body');
+      tbody.innerHTML = '';
+
+      const filtered = deck.filter(item => {
+        const matchesSearch = item.kanji.toLowerCase().includes(search) || 
+                              item.reading.toLowerCase().includes(search) || 
+                              item.meaning.toLowerCase().includes(search);
+        const matchesCat = catFilter === 'all' || item.category === catFilter;
+        return matchesSearch && matchesCat;
+      });
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition-colors';
+        tr.innerHTML = `
+          <td class="p-3.5 font-bold text-slate-900 dark:text-white">${item.kanji}</td>
+          <td class="p-3.5 text-sakura-600 dark:text-sakura-400 font-medium">${item.reading}</td>
+          <td class="p-3.5 text-slate-700 dark:text-zinc-300">${item.meaning}</td>
+          <td class="p-3.5 text-xs text-slate-500 font-mono">${item.category}</td>
+          <td class="p-3.5"><span class="px-2 py-0.5 rounded text-xs bg-slate-100 dark:bg-zinc-800">${item.srs.interval} days</span></td>
+          <td class="p-3.5 text-right space-x-1">
+            <button onclick="changeItemGroup('${item.id}')" class="p-1.5 text-slate-400 hover:text-sakura-500 rounded transition-colors" title="Move Group"><i data-lucide="folder-input" class="w-4 h-4"></i></button>
+            <button onclick="deleteDeckItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-red-500 rounded transition-colors" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    function changeItemGroup(id) {
+      const item = deck.find(d => d.id === id);
+      if (!item) return;
+      const targetGroup = prompt(`Change group for "${item.kanji}" (Current: ${item.category}):`, item.category);
+      if (targetGroup && targetGroup.trim()) {
+        const cleanGrp = targetGroup.trim();
+        item.category = cleanGrp;
+        if (!customGroups.includes(cleanGrp)) customGroups.push(cleanGrp);
+        saveDeck();
+        populateGroupSelects();
+        renderDeckTable();
+      }
+    }
+
+    function deleteDeckItem(id) {
+      if (confirm('Delete this card from your SRS deck?')) {
+        deck = deck.filter(item => item.id !== id);
+        saveDeck();
+        prepareDueQueue();
+        renderDeckTable();
+      }
+    }
+
+    function handleManualAdd(e) {
+      e.preventDefault();
+      const kanji = document.getElementById('add-kanji').value.trim();
+      const reading = document.getElementById('add-reading').value.trim();
+      const meaning = document.getElementById('add-meaning').value.trim();
+      let category = document.getElementById('add-source').value;
+      const type = document.getElementById('add-type').value;
+      const example = document.getElementById('add-example').value.trim();
+
+      if (category === '__NEW_GROUP__') category = customGroups[0] || "Custom Deck";
+
+      const newItem = {
+        id: 'user_' + Date.now(),
+        kanji,
+        reading,
+        meaning,
+        category,
+        type,
+        example,
+        notes: 'Manually added word',
+        srs: { interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString() }
+      };
+
+      deck.unshift(newItem);
+      saveDeck();
+      prepareDueQueue();
+      renderDeckTable();
+      closeAddModal();
+      document.getElementById('form-add-item').reset();
+    }
+
+    function updateStats() {
+      document.getElementById('stat-total-count').textContent = deck.length;
+
+      let learning = 0, reviewing = 0, mastered = 0;
+      deck.forEach(item => {
+        if (item.srs.interval < 3) learning++;
+        else if (item.srs.interval <= 21) reviewing++;
+        else mastered++;
+      });
+
+      document.getElementById('stat-mastered-count').textContent = mastered;
+      document.getElementById('stage-learning-cnt').textContent = learning;
+      document.getElementById('stage-review-cnt').textContent = reviewing;
+      document.getElementById('stage-mastered-cnt').textContent = mastered;
+
+      const total = deck.length || 1;
+      document.getElementById('bar-learning').style.width = `${(learning / total) * 100}%`;
+      document.getElementById('bar-review').style.width = `${(reviewing / total) * 100}%`;
+      document.getElementById('bar-mastered').style.width = `${(mastered / total) * 100}%`;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(el => {
+        el.className = 'nav-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white';
+      });
+
+      const targetBtn = document.getElementById(`tab-${tab}`);
+      targetBtn.className = 'nav-btn px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all text-sakura-600 dark:text-sakura-400 bg-white dark:bg-zinc-700 shadow-sm font-semibold';
+
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+
+      if (tab === 'quiz') startQuizMode();
+      if (tab === 'deck') renderDeckTable();
+      if (tab === 'stats') updateStats();
+    }
+
+    function openAddModal() { document.getElementById('modal-add').classList.remove('hidden'); }
+    function closeAddModal() { 
+      closeKeyboardPopover();
+      document.getElementById('kanji-candidates-popup').classList.add('hidden');
+      document.getElementById('modal-add').classList.add('hidden'); 
+    }
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function exportDeckJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(deck, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "sakura_srs_custom_deck.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+  </script>
+</body>
+</html>
